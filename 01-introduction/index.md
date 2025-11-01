@@ -3,18 +3,18 @@
 ## 目录
 
 1. [C++基础](#第1章-c基础)
-2. [变量和运算符](#第2章-变量和运算符)
-3. [控制流](#第3章-控制流)
-4. [函数](#第4章-函数)
-5. [数组和集合](#第5章-数组和集合)
-6. [类和对象](#第6章-类和对象简介)
-7. [指针](#第7章-指针简介)
-8. [字符串](#第8章-字符串处理)
-9. [输入输出](#第9章-输入输出操作)
-10. [引用](#第10章-引用)
-11. [动态内存](#第11章-动态内存管理)
-12. [构造和析构](#第12章-构造函数和析构函数)
-13. [拷贝语义](#第13章-拷贝语义)
+2. [输入输出](#第2章-输入输出操作)
+3. [变量和运算符](#第3章-变量和运算符)
+4. [字符串](#第4章-字符串处理)
+5. [控制流](#第5章-控制流)
+6. [数组和集合](#第6章-数组和集合)
+7. [函数](#第7章-函数)
+8. [引用](#第8章-引用)
+9. [指针](#第9章-指针简介)
+10. [类和对象](#第10章-类和对象简介)
+11. [构造和析构](#第11章-构造函数和析构函数)
+12. [拷贝语义](#第12章-拷贝语义)
+13. [动态内存](#第13章-动态内存管理)
 14. [类型转换](#第14章-类型转换)
 15. [内联函数](#第15章-内联函数)
 16. [Lambda表达式](#第16章-lambda表达式)
@@ -457,9 +457,189 @@ int main() {
 
 ---
 
-## 第2章 变量和运算符
+## 第2章 输入输出操作
 
-### 2.1 变量声明和初始化
+C++使用流（stream）进行输入输出操作。主要的流包括cin（输入）、cout（输出）和文件流。
+
+### 2.1 基本输入输出
+
+**完整示例 - 基本输入输出：**
+
+```cpp
+#include <iostream>
+#include <string>
+
+int main() {
+    std::cout << "=== 基本输入输出示例 ===" << std::endl;
+
+    // 输出
+    std::cout << "Hello, World!" << std::endl;
+    std::cout << "我的第一个C++程序" << std::endl;
+
+    // 输入
+    std::string name;
+    int age;
+
+    std::cout << "\n请输入你的名字: ";
+    std::cin >> name;
+
+    std::cout << "请输入你的年龄: ";
+    std::cin >> age;
+
+    // 输出结果
+    std::cout << "\n你好, " << name << "!" << std::endl;
+    std::cout << "你今年 " << age << " 岁" << std::endl;
+
+    // 多个值的输入输出
+    int a, b, c;
+    std::cout << "\n请输入三个整数（用空格分隔）: ";
+    std::cin >> a >> b >> c;
+    std::cout << "你输入的数字是: " << a << ", " << b << ", " << c << std::endl;
+
+    return 0;
+}
+```
+
+**预期输出：**
+
+```
+=== 基本输入输出示例 ===
+Hello, World!
+我的第一个C++程序
+
+请输入你的名字: Alice
+请输入你的年龄: 25
+
+你好, Alice!
+你今年 25 岁
+
+请输入三个整数（用空格分隔）: 10 20 30
+你输入的数字是: 10, 20, 30
+```
+
+### 2.2 格式化输出
+
+**完整示例 - 格式化输出：**
+
+```cpp
+#include <iostream>
+#include <iomanip>  // 用于格式化
+
+int main() {
+    std::cout << "=== 格式化输出示例 ===" << std::endl;
+
+    // 设置精度
+    double pi = 3.14159265359;
+    std::cout << "默认精度: " << pi << std::endl;
+    std::cout << std::fixed << std::setprecision(2);
+    std::cout << "保留2位小数: " << pi << std::endl;
+    std::cout << std::setprecision(5);
+    std::cout << "保留5位小数: " << pi << std::endl;
+
+    // 设置宽度和对齐
+    std::cout << "\n表格输出:" << std::endl;
+    std::cout << std::setw(10) << "姓名" << std::setw(10) << "年龄" << std::setw(15) << "分数" << std::endl;
+    std::cout << std::setw(10) << "Alice" << std::setw(10) << 25 << std::setw(15) << 95.5 << std::endl;
+    std::cout << std::setw(10) << "Bob" << std::setw(10) << 30 << std::setw(15) << 87.3 << std::endl;
+
+    // 进制转换
+    int num = 255;
+    std::cout << "\n进制转换:" << std::endl;
+    std::cout << "十进制: " << std::dec << num << std::endl;
+    std::cout << "十六进制: " << std::hex << num << std::endl;
+    std::cout << "八进制: " << std::oct << num << std::endl;
+
+    return 0;
+}
+```
+
+**预期输出：**
+
+```
+=== 格式化输出示例 ===
+默认精度: 3.14159
+保留2位小数: 3.14
+保留5位小数: 3.14159
+
+表格输出:
+      姓名      年龄           分数
+     Alice        25          95.50
+       Bob        30          87.30
+
+进制转换:
+十进制: 255
+十六进制: ff
+八进制: 377
+```
+
+### 2.3 文件输入输出
+
+**完整示例 - 文件操作：**
+
+```cpp
+#include <iostream>
+#include <fstream>
+#include <string>
+
+int main() {
+    std::cout << "=== 文件输入输出示例 ===" << std::endl;
+
+    // 写入文件
+    std::ofstream outFile("example.txt");
+    if (outFile.is_open()) {
+        outFile << "第一行文本" << std::endl;
+        outFile << "第二行文本" << std::endl;
+        outFile << "数字: " << 42 << std::endl;
+        outFile.close();
+        std::cout << "文件写入成功" << std::endl;
+    } else {
+        std::cout << "无法打开文件进行写入" << std::endl;
+    }
+
+    // 读取文件
+    std::ifstream inFile("example.txt");
+    if (inFile.is_open()) {
+        std::string line;
+        std::cout << "\n文件内容:" << std::endl;
+        while (std::getline(inFile, line)) {
+            std::cout << line << std::endl;
+        }
+        inFile.close();
+    } else {
+        std::cout << "无法打开文件进行读取" << std::endl;
+    }
+
+    return 0;
+}
+```
+
+**预期输出：**
+
+```
+=== 文件输入输出示例 ===
+文件写入成功
+
+文件内容:
+第一行文本
+第二行文本
+数字: 42
+```
+
+**文件操作模式：**
+
+| 模式 | 说明 |
+|------|------|
+| `std::ios::in` | 读取模式 |
+| `std::ios::out` | 写入模式 |
+| `std::ios::app` | 追加模式 |
+| `std::ios::binary` | 二进制模式 |
+| `std::ios::trunc` | 截断模式（清空文件） |
+
+---
+
+## 第3章 变量和运算符
+
+### 3.1 变量声明和初始化
 
 变量是程序中用于存储数据的命名内存位置。每个变量都有名称、类型和值。理解变量的声明和初始化是编程的基础。
 
@@ -1036,11 +1216,129 @@ int main() {
 
 ---
 
-## 第3章 控制流
+## 第4章 字符串处理
+
+C++提供两种字符串：C风格字符串（字符数组）和C++风格字符串（std::string类）。
+
+### 4.1 C风格字符串
+
+C风格字符串是以空字符`\0`结尾的字符数组。
+
+**完整示例 - C风格字符串：**
+
+```cpp
+#include <iostream>
+#include <cstring>  // C字符串函数库
+
+int main() {
+    std::cout << "=== C风格字符串示例 ===" << std::endl;
+
+    // 声明和初始化
+    char str1[] = "Hello";  // 自动添加\0
+    char str2[20] = "World";
+    char str3[50];
+
+    std::cout << "str1: " << str1 << std::endl;
+    std::cout << "str2: " << str2 << std::endl;
+
+    // 字符串长度
+    std::cout << "\nstr1长度: " << strlen(str1) << std::endl;
+
+    // 字符串复制
+    strcpy(str3, str1);
+    std::cout << "复制后str3: " << str3 << std::endl;
+
+    // 字符串连接
+    strcat(str3, " ");
+    strcat(str3, str2);
+    std::cout << "连接后str3: " << str3 << std::endl;
+
+    // 字符串比较
+    if (strcmp(str1, str2) == 0) {
+        std::cout << "\nstr1和str2相同" << std::endl;
+    } else {
+        std::cout << "\nstr1和str2不同" << std::endl;
+    }
+
+    return 0;
+}
+```
+
+### 4.2 C++风格字符串（std::string）
+
+`std::string`是C++标准库提供的字符串类，比C风格字符串更安全、更易用。
+
+**完整示例 - std::string：**
+
+```cpp
+#include <iostream>
+#include <string>
+
+int main() {
+    std::cout << "=== std::string示例 ===" << std::endl;
+
+    // 声明和初始化
+    std::string s1 = "Hello";
+    std::string s2("World");
+    std::string s3;
+
+    std::cout << "s1: " << s1 << std::endl;
+    std::cout << "s2: " << s2 << std::endl;
+
+    // 字符串连接
+    std::string s4 = s1 + " " + s2;
+    std::cout << "\n连接: " << s4 << std::endl;
+
+    // 字符串长度
+    std::cout << "s4长度: " << s4.length() << std::endl;
+    std::cout << "s4大小: " << s4.size() << std::endl;
+
+    // 访问字符
+    std::cout << "\n第一个字符: " << s4[0] << std::endl;
+    std::cout << "最后一个字符: " << s4[s4.length() - 1] << std::endl;
+
+    // 子字符串
+    std::string sub = s4.substr(0, 5);  // 从位置0开始，长度5
+    std::cout << "\n子字符串: " << sub << std::endl;
+
+    // 查找
+    size_t pos = s4.find("World");
+    if (pos != std::string::npos) {
+        std::cout << "找到'World'在位置: " << pos << std::endl;
+    }
+
+    // 替换
+    s4.replace(0, 5, "Hi");
+    std::cout << "\n替换后: " << s4 << std::endl;
+
+    // 插入和删除
+    s4.insert(2, "!!!");
+    std::cout << "插入后: " << s4 << std::endl;
+
+    s4.erase(2, 3);
+    std::cout << "删除后: " << s4 << std::endl;
+
+    return 0;
+}
+```
+
+**C风格字符串 vs std::string：**
+
+| 特性 | C风格字符串 | std::string |
+|------|------------|-------------|
+| 声明 | `char str[100]` | `std::string str` |
+| 安全性 | 容易溢出 | 自动管理内存 |
+| 易用性 | 需要手动管理 | 提供丰富方法 |
+| 性能 | 稍快 | 快 |
+| 推荐使用 | ❌ 否 | ✅ 是 |
+
+---
+
+## 第5章 控制流
 
 控制流语句决定程序的执行顺序。通过条件语句和循环，我们可以让程序根据不同情况做出不同的决策，或重复执行某些操作。
 
-### 3.1 条件语句
+### 5.1 条件语句
 
 条件语句允许程序根据条件的真假来选择不同的执行路径。
 
@@ -2059,11 +2357,11 @@ end_loops:
 
 ---
 
-## 第4章 函数
+## 第6章 数组和集合
 
-函数是C++程序的基本构建块。它们允许我们将代码组织成可重用的模块，使程序更易于理解、测试和维护。
+数组和集合是存储多个相同类型数据的容器。C++提供了传统的C风格数组和现代的STL容器（如vector）。
 
-### 4.1 函数基础
+### 6.1 C风格数组
 
 函数是执行特定任务的命名代码块。函数可以接收输入（参数），执行操作，并返回结果。
 
@@ -2662,11 +2960,11 @@ void func1(int a, int b = 10, int c = 20);
 
 ---
 
-## 第5章 数组和集合
+## 第7章 函数
 
-数组和集合是存储多个相同类型数据的容器。C++提供了传统的C风格数组和现代的STL容器（如vector）。
+函数是C++程序的基本构建块。它们允许我们将代码组织成可重用的模块，使程序更易于理解、测试和维护。
 
-### 5.1 C风格数组
+### 7.1 函数基础
 
 数组是存储固定数量相同类型元素的连续内存块。
 
@@ -2997,11 +3295,112 @@ int main() {
 
 ---
 
-## 第6章 类和对象简介
+## 第8章 引用
 
-面向对象编程（OOP）是C++的核心特性之一。类和对象是OOP的基础，它们允许我们将数据和操作数据的函数组织在一起。
+引用是C++中非常重要的特性，它提供了一种更安全、更方便的方式来操作变量。
 
-### 6.1 什么是类？
+### 8.1 什么是引用？
+
+引用是变量的别名，它与原变量共享同一块内存。引用必须在声明时初始化，且一旦绑定就不能改变。
+
+**完整示例 - 引用基础：**
+
+```cpp
+#include <iostream>
+
+int main() {
+    std::cout << "=== 引用基础示例 ===" << std::endl;
+
+    int x = 10;
+    int& ref = x;  // ref是x的引用（别名）
+
+    std::cout << "x = " << x << std::endl;
+    std::cout << "ref = " << ref << std::endl;
+
+    // 修改引用会影响原变量
+    ref = 20;
+    std::cout << "\n修改ref后:" << std::endl;
+    std::cout << "x = " << x << std::endl;
+    std::cout << "ref = " << ref << std::endl;
+
+    // 引用和原变量的地址相同
+    std::cout << "\n地址比较:" << std::endl;
+    std::cout << "x的地址: " << &x << std::endl;
+    std::cout << "ref的地址: " << &ref << std::endl;
+
+    return 0;
+}
+```
+
+### 8.2 引用作为函数参数
+
+引用最常用于函数参数传递，可以避免复制大型对象，同时允许函数修改原始数据。
+
+**完整示例 - 引用参数：**
+
+```cpp
+#include <iostream>
+
+// 按值传递（复制）
+void incrementByValue(int x) {
+    x++;
+    std::cout << "函数内部（按值）: " << x << std::endl;
+}
+
+// 按引用传递（不复制）
+void incrementByReference(int& x) {
+    x++;
+    std::cout << "函数内部（按引用）: " << x << std::endl;
+}
+
+// const引用（只读）
+void printByConstReference(const int& x) {
+    std::cout << "const引用: " << x << std::endl;
+    // x++;  // 错误！不能修改const引用
+}
+
+int main() {
+    std::cout << "=== 引用作为函数参数 ===" << std::endl;
+
+    int num = 10;
+
+    std::cout << "原始值: " << num << std::endl;
+
+    incrementByValue(num);
+    std::cout << "调用按值传递后: " << num << " (未改变)" << std::endl;
+
+    std::cout << std::endl;
+    incrementByReference(num);
+    std::cout << "调用按引用传递后: " << num << " (已改变)" << std::endl;
+
+    std::cout << std::endl;
+    printByConstReference(num);
+
+    return 0;
+}
+```
+
+### 8.3 引用 vs 指针
+
+**对比表：**
+
+| 特性 | 引用 | 指针 |
+|------|------|------|
+| 语法 | `int& ref = x` | `int* ptr = &x` |
+| 必须初始化 | 是 | 否 |
+| 可以重新绑定 | 否 | 是 |
+| 可以为空 | 否 | 是（nullptr） |
+| 访问值 | 直接使用 | 需要解引用`*ptr` |
+| 安全性 | 更安全 | 较危险 |
+| 推荐 | ✅ 优先使用 | 必要时使用 |
+
+---
+
+## 第9章 指针简介
+
+指针是C++中最强大但也最容易出错的特性之一。理解指针对于掌握C++至关重要。
+
+### 9.1 什么是指针？
 
 类是创建对象的蓝图或模板。它定义了对象将拥有什么数据（成员变量/属性）和行为（成员函数/方法）。
 
@@ -3397,11 +3796,11 @@ int main() {
 
 ---
 
-## 第7章 指针简介
+## 第10章 类和对象简介
 
-指针是C++中最强大但也最容易出错的特性之一。理解指针对于掌握C++至关重要。
+面向对象编程（OOP）是C++的核心特性之一。类和对象是OOP的基础，它们允许我们将数据和操作数据的函数组织在一起。
 
-### 7.1 什么是指针？
+### 10.1 什么是类？
 
 指针是一个存储内存地址的变量。可以把它想象成：
 
@@ -3718,11 +4117,11 @@ int main() {
 
 ---
 
-## 第8章 字符串处理
+## 第11章 构造函数和析构函数
 
-C++提供两种字符串：C风格字符串（字符数组）和C++风格字符串（std::string类）。
+构造函数和析构函数是类的特殊成员函数，用于对象的初始化和清理。
 
-### 8.1 C风格字符串
+### 11.1 构造函数
 
 C风格字符串是**以空字符('\0')结尾的字符数组**。
 
@@ -3903,11 +4302,11 @@ apple 在字典序中小于 banana
 
 ---
 
-## 第9章 输入输出操作
+## 第12章 拷贝语义
 
-C++使用流（stream）进行输入输出操作。主要的流包括cin（输入）、cout（输出）和文件流。
+拷贝语义定义了对象如何被复制。理解浅拷贝和深拷贝对于管理动态内存至关重要。
 
-### 9.1 基本输入输出
+### 12.1 浅拷贝 vs 深拷贝
 
 **完整示例 - 基本I/O：**
 
@@ -4084,11 +4483,11 @@ int main() {
 
 ---
 
-## 第10章 引用
+## 第13章 动态内存管理
 
-引用是C++中非常重要的特性，它提供了一种更安全、更方便的方式来操作变量。
+动态内存管理允许程序在运行时分配和释放内存，提供了更大的灵活性。
 
-### 10.1 什么是引用？
+### 13.1 new和delete
 
 引用是一个变量的别名（另一个名字），它允许我们使用不同的名称访问同一块内存空间。
 
@@ -4267,11 +4666,11 @@ int main() {
 
 ---
 
-## 第11章 动态内存管理
+## 第14章 类型转换
 
-动态内存管理允许程序在运行时分配和释放内存，提供了更大的灵活性。
+C++提供了四种类型转换运算符，比C风格的强制转换更安全、更明确。
 
-### 11.1 new和delete
+### 14.1 static_cast
 
 **完整示例 - 动态内存分配：**
 
@@ -4546,13 +4945,7 @@ Person David 销毁
 - ✅ 使用`weak_ptr`打破循环引用
 - ❌ 避免混用智能指针和原始指针
 
----
 
-## 第12章 构造函数和析构函数
-
-构造函数和析构函数是类的特殊成员函数，用于对象的初始化和清理。
-
-### 12.1 构造函数
 
 构造函数在创建对象时自动调用，用于初始化对象的成员变量。
 
@@ -4816,331 +5209,11 @@ Point 3: (20, 0)
 
 ---
 
-## 第13章 拷贝语义
+## 第15章 内联函数
 
-拷贝语义定义了对象如何被复制。理解浅拷贝和深拷贝对于管理动态内存至关重要。
+内联函数是C++的一种优化机制，可以减少函数调用开销。
 
-### 13.1 浅拷贝 vs 深拷贝
-
-**完整示例 - 浅拷贝问题：**
-
-```cpp
-#include <iostream>
-#include <cstring>
-
-class ShallowString {
-private:
-    char* data;
-
-public:
-    ShallowString(const char* str) {
-        data = new char[strlen(str) + 1];
-        strcpy(data, str);
-        std::cout << "构造: " << data << std::endl;
-    }
-
-    // 使用默认拷贝构造函数（浅拷贝）
-    // ShallowString(const ShallowString& other) = default;
-
-    ~ShallowString() {
-        std::cout << "析构: " << data << std::endl;
-        delete[] data;
-    }
-
-    void print() const {
-        std::cout << "数据: " << data << std::endl;
-    }
-};
-
-void demonstrateShallowCopy() {
-    std::cout << "=== 浅拷贝问题 ===" << std::endl;
-    ShallowString s1("Hello");
-    // ShallowString s2 = s1;  // 浅拷贝！两个对象共享同一个data指针
-    // 当s1和s2销毁时，会尝试两次delete同一块内存！（崩溃）
-}
-
-int main() {
-    demonstrateShallowCopy();
-    return 0;
-}
-```
-
-**完整示例 - 深拷贝解决方案：**
-
-```cpp
-#include <iostream>
-#include <cstring>
-
-class DeepString {
-private:
-    char* data;
-    int length;
-
-public:
-    // 构造函数
-    DeepString(const char* str) {
-        length = strlen(str);
-        data = new char[length + 1];
-        strcpy(data, str);
-        std::cout << "构造: '" << data << "'" << std::endl;
-    }
-
-    // 拷贝构造函数（深拷贝）
-    DeepString(const DeepString& other) {
-        length = other.length;
-        data = new char[length + 1];  // 分配新内存
-        strcpy(data, other.data);     // 复制数据
-        std::cout << "拷贝构造: '" << data << "'" << std::endl;
-    }
-
-    // 拷贝赋值运算符（深拷贝）
-    DeepString& operator=(const DeepString& other) {
-        std::cout << "拷贝赋值: '" << other.data << "'" << std::endl;
-
-        if (this != &other) {  // 检查自赋值
-            delete[] data;  // 释放旧内存
-
-            length = other.length;
-            data = new char[length + 1];  // 分配新内存
-            strcpy(data, other.data);     // 复制数据
-        }
-        return *this;
-    }
-
-    // 析构函数
-    ~DeepString() {
-        std::cout << "析构: '" << data << "'" << std::endl;
-        delete[] data;
-    }
-
-    void print() const {
-        std::cout << "数据: '" << data << "', 长度: " << length << std::endl;
-    }
-
-    void modify(char newChar) {
-        if (length > 0) {
-            data[0] = newChar;
-        }
-    }
-};
-
-int main() {
-    std::cout << "=== 深拷贝示例 ===" << std::endl;
-
-    DeepString s1("Hello");
-    s1.print();
-
-    std::cout << "\n拷贝构造:" << std::endl;
-    DeepString s2 = s1;  // 调用拷贝构造函数
-    s2.print();
-
-    std::cout << "\n修改s2:" << std::endl;
-    s2.modify('J');
-    s1.print();  // s1不受影响
-    s2.print();  // s2被修改
-
-    std::cout << "\n拷贝赋值:" << std::endl;
-    DeepString s3("World");
-    s3 = s1;  // 调用拷贝赋值运算符
-    s3.print();
-
-    std::cout << "\n程序结束，对象将被销毁:" << std::endl;
-    return 0;
-}
-```
-
-**预期输出：**
-
-```
-=== 深拷贝示例 ===
-构造: 'Hello'
-数据: 'Hello', 长度: 5
-
-拷贝构造:
-拷贝构造: 'Hello'
-数据: 'Hello', 长度: 5
-
-修改s2:
-数据: 'Hello', 长度: 5
-数据: 'Jello', 长度: 5
-
-拷贝赋值:
-构造: 'World'
-拷贝赋值: 'Hello'
-数据: 'Hello', 长度: 5
-
-程序结束，对象将被销毁:
-析构: 'Hello'
-析构: 'Jello'
-析构: 'Hello'
-```
-
-### 13.2 三法则（Rule of Three）
-
-如果一个类需要自定义以下任何一个，通常需要自定义全部三个：
-
-1. 析构函数
-2. 拷贝构造函数
-3. 拷贝赋值运算符
-
-**完整示例 - 三法则：**
-
-```cpp
-#include <iostream>
-#include <cstring>
-
-class DynamicArray {
-private:
-    int* data;
-    int size;
-
-public:
-    // 1. 构造函数
-    DynamicArray(int s) : size(s) {
-        data = new int[size];
-        for (int i = 0; i < size; i++) {
-            data[i] = 0;
-        }
-        std::cout << "构造函数: 创建大小为 " << size << " 的数组" << std::endl;
-    }
-
-    // 2. 析构函数
-    ~DynamicArray() {
-        std::cout << "析构函数: 释放大小为 " << size << " 的数组" << std::endl;
-        delete[] data;
-    }
-
-    // 3. 拷贝构造函数（深拷贝）
-    DynamicArray(const DynamicArray& other) : size(other.size) {
-        data = new int[size];
-        for (int i = 0; i < size; i++) {
-            data[i] = other.data[i];
-        }
-        std::cout << "拷贝构造函数: 复制大小为 " << size << " 的数组" << std::endl;
-    }
-
-    // 4. 拷贝赋值运算符（深拷贝）
-    DynamicArray& operator=(const DynamicArray& other) {
-        std::cout << "拷贝赋值运算符" << std::endl;
-
-        if (this != &other) {  // 防止自赋值
-            // 释放旧资源
-            delete[] data;
-
-            // 分配新资源
-            size = other.size;
-            data = new int[size];
-
-            // 复制数据
-            for (int i = 0; i < size; i++) {
-                data[i] = other.data[i];
-            }
-        }
-        return *this;
-    }
-
-    void set(int index, int value) {
-        if (index >= 0 && index < size) {
-            data[index] = value;
-        }
-    }
-
-    int get(int index) const {
-        if (index >= 0 && index < size) {
-            return data[index];
-        }
-        return -1;
-    }
-
-    void print() const {
-        std::cout << "数组: [";
-        for (int i = 0; i < size; i++) {
-            std::cout << data[i];
-            if (i < size - 1) std::cout << ", ";
-        }
-        std::cout << "]" << std::endl;
-    }
-};
-
-int main() {
-    std::cout << "=== 三法则示例 ===" << std::endl;
-
-    DynamicArray arr1(5);
-    arr1.set(0, 10);
-    arr1.set(1, 20);
-    arr1.set(2, 30);
-    arr1.print();
-
-    std::cout << "\n拷贝构造:" << std::endl;
-    DynamicArray arr2 = arr1;
-    arr2.print();
-
-    std::cout << "\n修改arr2:" << std::endl;
-    arr2.set(0, 99);
-    arr1.print();  // arr1不受影响
-    arr2.print();
-
-    std::cout << "\n拷贝赋值:" << std::endl;
-    DynamicArray arr3(3);
-    arr3 = arr1;
-    arr3.print();
-
-    std::cout << "\n程序结束:" << std::endl;
-    return 0;
-}
-```
-
-**预期输出：**
-
-```
-=== 三法则示例 ===
-构造函数: 创建大小为 5 的数组
-数组: [10, 20, 30, 0, 0]
-
-拷贝构造:
-拷贝构造函数: 复制大小为 5 的数组
-数组: [10, 20, 30, 0, 0]
-
-修改arr2:
-数组: [10, 20, 30, 0, 0]
-数组: [99, 20, 30, 0, 0]
-
-拷贝赋值:
-构造函数: 创建大小为 3 的数组
-拷贝赋值运算符
-数组: [10, 20, 30, 0, 0]
-
-程序结束:
-析构函数: 释放大小为 5 的数组
-析构函数: 释放大小为 5 的数组
-析构函数: 释放大小为 5 的数组
-```
-
-**浅拷贝 vs 深拷贝对比：**
-
-| 特性 | 浅拷贝 | 深拷贝 |
-|------|--------|--------|
-| 指针复制 | 复制指针值 | 复制指针指向的数据 |
-| 内存 | 共享同一块内存 | 各自独立的内存 |
-| 修改影响 | 互相影响 | 互不影响 |
-| 析构问题 | 重复释放（崩溃） | 各自释放（安全） |
-| 默认行为 | 是 | 否（需手动实现） |
-
-**最佳实践：**
-
-- ✅ 遵循三法则：定义析构函数时，也定义拷贝构造和拷贝赋值
-- ✅ 在拷贝赋值中检查自赋值
-- ✅ 使用智能指针避免手动内存管理
-- ✅ C++11后考虑五法则（增加移动构造和移动赋值）
-- ❌ 不要依赖默认拷贝行为处理动态内存
-
----
-
-## 第14章 类型转换
-
-C++提供了四种类型转换运算符，比C风格的强制转换更安全、更明确。
-
-### 14.1 static_cast
+### 15.1 什么是内联函数？
 
 `static_cast`用于编译时已知的类型转换，是最常用的转换方式。
 
@@ -5468,341 +5541,6 @@ int main() {
 - ❌ 避免使用`reinterpret_cast`
 - ❌ 避免使用C风格转换
 - ✅ 让编译器帮你检查类型安全
-
----
-
-## 第15章 内联函数
-
-内联函数是C++的一种优化机制，可以减少函数调用开销。
-
-### 15.1 什么是内联函数？
-
-内联函数是一种**编译器优化请求**。编译器会尝试将函数调用直接替换为函数体，避免函数调用的开销。
-
-**完整示例 - 内联函数基础：**
-
-```cpp
-#include <iostream>
-
-// 普通函数
-int add(int a, int b) {
-    return a + b;
-}
-
-// 内联函数
-inline int addInline(int a, int b) {
-    return a + b;
-}
-
-// 内联函数 - 稍复杂
-inline int square(int x) {
-    return x * x;
-}
-
-// 内联函数 - 多行
-inline int max(int a, int b) {
-    if (a > b) {
-        return a;
-    } else {
-        return b;
-    }
-}
-
-int main() {
-    std::cout << "=== 内联函数示例 ===" << std::endl;
-
-    // 普通函数调用
-    int result1 = add(5, 3);
-    std::cout << "普通函数: 5 + 3 = " << result1 << std::endl;
-
-    // 内联函数调用（编译器可能将其替换为 5 + 3）
-    int result2 = addInline(5, 3);
-    std::cout << "内联函数: 5 + 3 = " << result2 << std::endl;
-
-    // 其他内联函数
-    std::cout << "square(7) = " << square(7) << std::endl;
-    std::cout << "max(10, 20) = " << max(10, 20) << std::endl;
-
-    return 0;
-}
-```
-
-**预期输出：**
-
-```
-=== 内联函数示例 ===
-普通函数: 5 + 3 = 8
-内联函数: 5 + 3 = 8
-square(7) = 49
-max(10, 20) = 20
-```
-
-### 15.2 声明内联函数的方法
-
-**完整示例 - 三种声明方式：**
-
-```cpp
-#include <iostream>
-#include <cmath>
-
-// 方法1：显式使用inline关键字
-inline double calculateArea(double radius) {
-    return 3.14159 * radius * radius;
-}
-
-inline double calculateCircumference(double radius) {
-    return 2 * 3.14159 * radius;
-}
-
-// 方法2：类内直接定义（隐式内联）
-class Circle {
-private:
-    double radius;
-
-public:
-    Circle(double r) : radius(r) {}
-
-    // 类内定义的函数自动成为内联函数
-    double getRadius() const {
-        return radius;
-    }
-
-    double getArea() const {
-        return 3.14159 * radius * radius;
-    }
-
-    void setRadius(double r) {
-        radius = r;
-    }
-};
-
-// 方法3：类外使用inline关键字
-class Rectangle {
-private:
-    double width, height;
-
-public:
-    Rectangle(double w, double h);
-    double getArea() const;
-    double getPerimeter() const;
-};
-
-// 类外定义时使用inline
-inline Rectangle::Rectangle(double w, double h) : width(w), height(h) {}
-
-inline double Rectangle::getArea() const {
-    return width * height;
-}
-
-inline double Rectangle::getPerimeter() const {
-    return 2 * (width + height);
-}
-
-int main() {
-    std::cout << "=== 内联函数声明方式 ===" << std::endl;
-
-    // 方法1：独立内联函数
-    std::cout << "\n方法1 - 独立内联函数:" << std::endl;
-    std::cout << "半径5的圆面积: " << calculateArea(5.0) << std::endl;
-    std::cout << "半径5的圆周长: " << calculateCircumference(5.0) << std::endl;
-
-    // 方法2：类内定义
-    std::cout << "\n方法2 - 类内定义（隐式内联）:" << std::endl;
-    Circle c(10.0);
-    std::cout << "Circle半径: " << c.getRadius() << std::endl;
-    std::cout << "Circle面积: " << c.getArea() << std::endl;
-
-    // 方法3：类外inline
-    std::cout << "\n方法3 - 类外使用inline:" << std::endl;
-    Rectangle r(5.0, 3.0);
-    std::cout << "Rectangle面积: " << r.getArea() << std::endl;
-    std::cout << "Rectangle周长: " << r.getPerimeter() << std::endl;
-
-    return 0;
-}
-```
-
-**预期输出：**
-
-```
-=== 内联函数声明方式 ===
-
-方法1 - 独立内联函数:
-半径5的圆面积: 78.5398
-半径5的圆周长: 31.4159
-
-方法2 - 类内定义（隐式内联）:
-Circle半径: 10
-Circle面积: 314.159
-
-方法3 - 类外使用inline:
-Rectangle面积: 15
-Rectangle周长: 16
-```
-
-### 15.3 何时使用内联函数
-
-**完整示例 - 适合与不适合内联：**
-
-```cpp
-#include <iostream>
-
-// ✅ 适合内联：简单的getter/setter
-class Point {
-private:
-    int x, y;
-
-public:
-    Point(int x, int y) : x(x), y(y) {}
-
-    // 适合内联：非常简单
-    int getX() const { return x; }
-    int getY() const { return y; }
-    void setX(int newX) { x = newX; }
-    void setY(int newY) { y = newY; }
-};
-
-// ✅ 适合内联：简单计算
-inline int square(int x) {
-    return x * x;
-}
-
-inline bool isEven(int x) {
-    return x % 2 == 0;
-}
-
-// ❌ 不适合内联：包含循环
-inline int sumArray(int arr[], int size) {
-    int sum = 0;
-    for (int i = 0; i < size; i++) {
-        sum += arr[i];
-    }
-    return sum;  // 编译器可能拒绝内联
-}
-
-// ❌ 不适合内联：递归函数
-inline int factorial(int n) {
-    if (n <= 1) return 1;
-    return n * factorial(n - 1);  // 递归，不会被内联
-}
-
-// ❌ 不适合内联：复杂函数
-inline void complexFunction(int x) {
-    // 很多代码...
-    for (int i = 0; i < 100; i++) {
-        // 复杂逻辑
-    }
-    // 更多代码...
-}
-
-int main() {
-    std::cout << "=== 内联函数使用指南 ===" << std::endl;
-
-    // 适合内联的例子
-    Point p(10, 20);
-    std::cout << "Point: (" << p.getX() << ", " << p.getY() << ")" << std::endl;
-    std::cout << "square(5) = " << square(5) << std::endl;
-    std::cout << "isEven(4) = " << (isEven(4) ? "true" : "false") << std::endl;
-
-    // 不适合内联的例子（仍然可以调用，但可能不会被内联）
-    int arr[] = {1, 2, 3, 4, 5};
-    std::cout << "sumArray = " << sumArray(arr, 5) << std::endl;
-    std::cout << "factorial(5) = " << factorial(5) << std::endl;
-
-    return 0;
-}
-```
-
-**预期输出：**
-
-```
-=== 内联函数使用指南 ===
-Point: (10, 20)
-square(5) = 25
-isEven(4) = true
-sumArray = 15
-factorial(5) = 120
-```
-
-**内联函数使用指南：**
-
-**✅ 适合内联：**
-
-- 非常简单的函数（1-3行）
-- getter/setter方法
-- 简单的数学运算
-- 频繁调用的小函数
-- 性能关键的代码
-
-**❌ 不适合内联：**
-
-- 包含循环的函数
-- 递归函数
-- 复杂的函数（>10行）
-- 虚函数（通常不能内联）
-- 包含switch语句的函数
-
-### 15.4 内联函数的注意事项
-
-**完整示例 - 内联函数限制：**
-
-```cpp
-#include <iostream>
-
-// 注意1：inline只是建议，编译器可以忽略
-inline void mightNotBeInlined() {
-    // 即使标记为inline，编译器也可能不内联
-    for (int i = 0; i < 1000; i++) {
-        std::cout << i << " ";
-    }
-}
-
-// 注意2：内联函数定义通常放在头文件中
-// 因为编译器需要在每个调用点看到函数体
-
-// 注意3：过度使用内联会增加代码大小
-inline void function1() { /* ... */ }
-inline void function2() { /* ... */ }
-inline void function3() { /* ... */ }
-// 如果这些函数被调用很多次，代码大小会显著增加
-
-int main() {
-    std::cout << "=== 内联函数注意事项 ===" << std::endl;
-
-    std::cout << "\n1. inline是建议，不是命令" << std::endl;
-    std::cout << "   编译器可能拒绝内联复杂函数" << std::endl;
-
-    std::cout << "\n2. 内联函数定义应在头文件中" << std::endl;
-    std::cout << "   这样每个编译单元都能看到定义" << std::endl;
-
-    std::cout << "\n3. 过度内联会增加代码大小" << std::endl;
-    std::cout << "   权衡速度和大小" << std::endl;
-
-    std::cout << "\n4. 现代编译器很智能" << std::endl;
-    std::cout << "   即使不用inline，编译器也会自动内联合适的函数" << std::endl;
-
-    return 0;
-}
-```
-
-**内联函数最佳实践：**
-
-- ✅ 让编译器决定：现代编译器很智能，会自动内联合适的函数
-- ✅ 仅对简单、频繁调用的函数使用inline
-- ✅ 类内定义的成员函数自动内联，无需显式标记
-- ✅ 使用编译器优化选项（如`-O2`, `-O3`）让编译器自动优化
-- ⚠️ 不要过度使用inline，可能增加代码大小
-- ⚠️ inline只是建议，编译器可以忽略
-- ❌ 不要内联大型或复杂的函数
-
-**总结：**
-
-内联函数是一种优化技术，但现代C++开发中：
-
-- 编译器通常比程序员更了解何时内联
-- 过早优化是万恶之源
-- 先写清晰的代码，然后根据性能分析结果优化
-- 信任编译器的优化能力
 
 ---
 
