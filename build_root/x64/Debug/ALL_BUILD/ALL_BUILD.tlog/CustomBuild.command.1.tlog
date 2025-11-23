@@ -1,0 +1,10 @@
+^D:\PROJECT\SAST_CXX_LESSONS\CMAKELISTS.TXT
+setlocal
+"D:\Program Files\CMake\bin\cmake.exe" -SD:/Project/sast_cxx_lessons -BD:/Project/sast_cxx_lessons/build_root --check-stamp-file D:/Project/sast_cxx_lessons/build_root/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

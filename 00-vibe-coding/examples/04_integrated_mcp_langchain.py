@@ -69,17 +69,41 @@ python 04_integrated_mcp_langchain.py
 └─────────────────────────────────────────────┘
 """
 
+import warnings
+
+# 仅过滤 LangGraph 关于 AgentStatePydantic 迁移的弃用警告，避免污染终端输出
+warnings.filterwarnings(
+    "ignore",
+    message=r".*AgentStatePydantic.*",
+)
+
 import os
 import re
 import json
+import argparse
+import subprocess
+import sys
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 
-from fastmcp import FastMCP, tool
+from fastmcp import FastMCP
 from langchain_openai import ChatOpenAI
 from langchain.tools import tool as lc_tool
 from langchain.agents import create_agent
 from langgraph.checkpoint.memory import InMemorySaver
+from rich.console import Console
+from rich.markdown import Markdown
+from rich.panel import Panel
+from rich.table import Table
+from rich.prompt import Prompt
+
+# 仅过滤 LangGraph 关于 AgentStatePydantic 迁移的弃用警告，避免污染终端输出
+warnings.filterwarnings(
+    "ignore",
+    message=r".*AgentStatePydantic.*",
+)
+
+console = Console()
 
 # ============================================================================
 # 全局数据存储
@@ -274,14 +298,17 @@ def parse_natural_language_date(text: str) -> str:
 def create_smart_agent():
     """创建智能日程 Agent（使用 LangChain v1.0 API）"""
 
-    # 检查 API 密钥
-    if not os.getenv("OPENAI_API_KEY"):
-        raise ValueError("请设置 OPENAI_API_KEY 环境变量")
+    # 检查 API 密钥（优先使用 MEGALLM_API_KEY，其次兼容 OPENAI_API_KEY）
+    api_key = os.environ.get("MEGALLM_API_KEY") or os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError("请设置 MEGALLM_API_KEY 或 OPENAI_API_KEY 环境变量")
 
     # 初始化 LLM
     llm = ChatOpenAI(
-        model="gpt-4o-mini",
-        temperature=0.3,  # 略微提高创造性，以便更好地理解自然语言
+        model="gpt-5",
+        temperature=0.3,
+        base_url=os.environ.get("MEGALLM_BASE_URL", "https://ai.megallm.io/v1"),
+        api_key=api_key,
     )
 
     # 配置记忆（使用 Checkpointer）
@@ -353,11 +380,41 @@ app = FastMCP("smart-calendar", version="1.0.0")
 # 创建 Agent 实例（全局共享）
 try:
     smart_agent = create_smart_agent()
-    print("✅ LangChain Agent 初始化成功")
+    console.print("[bold green]✅ LangChain Agent 初始化成功[/bold green]")
 except Exception as e:
-    print(f"⚠️ LangChain Agent 初始化失败: {e}")
-    print("⚠️ smart_schedule 工具将不可用")
+    console.print(f"[bold red]⚠️ LangChain Agent 初始化失败:[/bold red] {e}")
+    console.print("[yellow]⚠️ smart_schedule 工具将不可用（仅简单工具可用）[/yellow]")
     smart_agent = None
+
+
+def _smart_schedule_internal(natural_language_input: str) -> dict:
+    """内部实现：供 MCP 工具和本地 CLI 公用。"""
+
+    if not smart_agent:
+        return {
+            "status": "error",
+            "message": "智能助手未初始化，请检查 MEGALLM_API_KEY 或 OPENAI_API_KEY 配置",
+        }
+
+    try:
+        # 调用 LangChain Agent 处理请求
+        # 使用 thread_id 来维护会话状态
+        config = {"configurable": {"thread_id": "default"}}
+        response = smart_agent.invoke(
+            {"messages": [{"role": "user", "content": natural_language_input}]},
+            config,
+        )
+
+        return {
+            "status": "success",
+            "result": response["messages"][-1].content,
+            "thought_process": "详细过程请查看服务器日志",
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"处理请求时出错: {str(e)}",
+        }
 
 
 @app.tool
@@ -380,30 +437,7 @@ def smart_schedule(natural_language_input: str) -> dict:
     返回：
         包含执行结果和建议的字典
     """
-    if not smart_agent:
-        return {
-            "status": "error",
-            "message": "智能助手未初始化，请检查 OPENAI_API_KEY 配置"
-        }
-
-    try:
-        # 调用 LangChain Agent 处理请求
-        # 使用 thread_id 来维护会话状态
-        config = {"configurable": {"thread_id": "default"}}
-        response = smart_agent.invoke({
-            "messages": [{"role": "user", "content": natural_language_input}]
-        }, config)
-
-        return {
-            "status": "success",
-            "result": response['messages'][-1].content,
-            "thought_process": "详细过程请查看服务器日志"
-        }
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": f"处理请求时出错: {str(e)}"
-        }
+    return _smart_schedule_internal(natural_language_input)
 
 
 @app.tool
@@ -468,37 +502,223 @@ def clear_all_events() -> dict:
     }
 
 
+# ====================================================================================
+# 主程序 & 可视化
 # ============================================================================
-# 主程序
-# ============================================================================
+
+
+def render_server_overview() -> None:
+    """使用 Rich 展示 MCP Server 的整体运行情况和配置。"""
+
+    console.rule("[bold cyan]智能日程助手 MCP Server（FastMCP + LangChain 集成）[/bold cyan]")
+    console.print()
+
+    # 环境变量状态
+    has_mega = bool(os.environ.get("MEGALLM_API_KEY"))
+    has_openai = bool(os.environ.get("OPENAI_API_KEY"))
+
+    env_table = Table(show_header=True, header_style="bold magenta")
+    env_table.add_column("配置项", style="cyan", no_wrap=True)
+    env_table.add_column("值", style="green")
+    env_table.add_column("状态", style="yellow")
+
+    env_table.add_row(
+        "MEGALLM_API_KEY",
+        "已设置" if has_mega else "未设置",
+        "[green]✔ 推荐使用[/green]" if has_mega else "[yellow]可选[/yellow]",
+    )
+    env_table.add_row(
+        "OPENAI_API_KEY",
+        "已设置" if has_openai else "未设置",
+        "[green]✔ 兼容模式[/green]" if has_openai else "[yellow]可选[/yellow]",
+    )
+
+    console.print(Panel(env_table, title="运行环境检测", border_style="blue"))
+
+    # 可用工具列表
+    tools_table = Table(show_header=True, header_style="bold magenta", show_lines=True)
+    tools_table.add_column("工具名", style="cyan", no_wrap=True)
+    tools_table.add_column("类型", style="green", no_wrap=True)
+    tools_table.add_column("说明", style="white")
+
+    tools_table.add_row(
+        "smart_schedule",
+        "智能",
+        "自然语言日程助手，内部调用 LangChain Agent 解析意图并执行操作",
+    )
+    tools_table.add_row(
+        "add_event_simple",
+        "简单",
+        "直接按日期/时间/标题添加日程，不做额外解析",
+    )
+    tools_table.add_row(
+        "get_all_events",
+        "查询",
+        "返回当前内存中的所有日程原始数据",
+    )
+    tools_table.add_row(
+        "clear_all_events",
+        "管理",
+        "清空所有日程（危险操作）",
+    )
+
+    console.print(Panel(tools_table, title="可用 MCP 工具", border_style="green"))
+
+    # 使用示例
+    usage_md = """[bold green]📝 使用示例（在 MCP 客户端中）：[/bold green]
+- "帮我安排明天下午3点的团队会议"
+- "列出我所有的日程"
+- "搜索包含项目的日程"
+- "11月20日有哪些空闲时间？"
+
+[bold green]💡 提示：[/bold green]
+- smart_schedule 会自动解析自然语言并调用内部工具
+- 其他三个工具适合在需要精确控制参数时由客户端直接调用
+"""
+    console.print(Panel(Markdown(usage_md), border_style="magenta", title="使用说明"))
+
+
+def run_cli_demo() -> None:
+    """本地 CLI 演示模式：在终端中直接体验智能日程助手。"""
+
+    console.rule("[bold cyan]智能日程助手 - 本地 CLI 演示[/bold cyan]")
+
+    if not smart_agent:
+        console.print("[bold red]智能助手未初始化，无法进入演示模式。[/bold red]")
+        console.print("请确认已正确设置 MEGALLM_API_KEY 或 OPENAI_API_KEY 环境变量。", style="yellow")
+        return
+
+    console.print(
+        """[bold green]说明：[/bold green]
+- 直接输入自然语言请求，例如：
+  • 帮我安排明天上午九点的英语课
+  • 查询一下本周的所有日程
+  • 11月20日有哪些空闲时间？
+- 输入空行或按 Ctrl+C 退出。
+"""
+    )
+
+    while True:
+        try:
+            user_input = Prompt.ask("[bold cyan]你的请求[/bold cyan]", default="")
+        except (KeyboardInterrupt, EOFError):
+            console.print("\n[bold cyan]已退出 CLI 演示模式，再见！[/bold cyan]")
+            break
+
+        if not user_input.strip():
+            console.print("[bold cyan]收到空输入，退出 CLI 演示模式。[/bold cyan]")
+            break
+
+        # 调用内部实现，避免直接调用 FastMCP 包装后的工具对象
+        result = _smart_schedule_internal(user_input)
+
+        if result.get("status") == "success":
+            content = result.get("result", "(无返回内容)")
+            try:
+                console.print(
+                    Panel.fit(
+                        Markdown(content),
+                        title="智能助手回复",
+                        border_style="green",
+                    )
+                )
+            except Exception:
+                console.print(
+                    Panel.fit(
+                        content,
+                        title="智能助手回复",
+                        border_style="green",
+                    )
+                )
+        else:
+            console.print(
+                Panel.fit(
+                    result.get("message", "未知错误"),
+                    title="错误",
+                    border_style="red",
+                )
+            )
+
+        # 每轮交互后显示当前日程概览
+        if EVENTS:
+            table = Table(title="当前日程概览", show_lines=True)
+            table.add_column("日期", style="cyan", no_wrap=True)
+            table.add_column("时间", style="magenta", no_wrap=True)
+            table.add_column("标题", style="green")
+
+            for event in sorted(
+                EVENTS, key=lambda x: (x.get("date", ""), x.get("time", ""))
+            ):
+                table.add_row(
+                    event.get("date", "-"),
+                    event.get("time", "-") or "-",
+                    event.get("title", "-"),
+                )
+
+            console.print(table)
+        else:
+            console.print("[dim]当前还没有任何日程。[/dim]")
+
+
+def run_server_subprocess() -> None:
+    """以子进程方式启动 FastMCP Server，避免阻塞当前进程。"""
+
+    console.rule("[bold cyan]智能日程助手 MCP Server - 子进程模式[/bold cyan]")
+
+    cmd = [
+        sys.executable,
+        "-W",
+        "ignore:.*AgentStatePydantic.*:DeprecationWarning",
+        os.path.abspath(__file__),
+        "--mode",
+        "server",
+    ]
+
+    info_table = Table(show_header=False)
+    info_table.add_column("键", style="cyan", no_wrap=True)
+    info_table.add_column("值", style="white")
+    info_table.add_row("Python", sys.executable)
+    info_table.add_row("脚本", os.path.abspath(__file__))
+    info_table.add_row("参数", "--mode server")
+
+    console.print(Panel(info_table, title="子进程启动命令", border_style="blue"))
+
+    try:
+        proc = subprocess.Popen(cmd)
+    except Exception as e:
+        console.print(f"[bold red]启动 FastMCP 子进程失败:[/bold red] {e}")
+        return
+
+    status_table = Table(show_header=False)
+    status_table.add_column("键", style="cyan", no_wrap=True)
+    status_table.add_column("值", style="white")
+    status_table.add_row("PID", str(proc.pid))
+    status_table.add_row("说明", "子进程以 MCP Server 模式运行，当前进程不会被阻塞")
+
+    console.print(
+        Panel(status_table, title="子进程状态", border_style="green")
+    )
+
 
 if __name__ == "__main__":
-    print("=" * 80)
-    print("智能日程助手 MCP Server（FastMCP + LangChain 集成）")
-    print("=" * 80)
-    print()
-    print("🚀 服务器功能：")
-    print("  1. 智能工具：smart_schedule - 理解自然语言，智能执行操作")
-    print("  2. 简单工具：add_event_simple - 直接添加日程")
-    print("  3. 查询工具：get_all_events - 获取所有日程")
-    print("  4. 管理工具：clear_all_events - 清空所有日程")
-    print()
-    print("📝 使用示例（在 Claude Desktop 中）：")
-    print('  - "帮我安排明天下午3点的团队会议"')
-    print('  - "列出我所有的日程"')
-    print('  - "搜索包含项目的日程"')
-    print('  - "11月20日有哪些空闲时间？"')
-    print()
-    print("💡 架构说明：")
-    print("  - FastMCP 负责暴露工具给外部客户端")
-    print("  - LangChain Agent 在内部负责智能理解和决策")
-    print("  - 两者协同工作，提供智能化的用户体验")
-    print()
-    print("⚙️ 配置要求：")
-    print("  - 环境变量：OPENAI_API_KEY")
-    print("  - 依赖：fastmcp, langchain, langchain-openai")
-    print()
-    print("-" * 80)
+    parser = argparse.ArgumentParser(
+        description="智能日程助手 MCP Server（FastMCP + LangChain 集成）"
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["server", "cli", "server-subprocess"],
+        default="server",
+        help="运行模式：server=当前进程启动 MCP Server；cli=本地 CLI 演示；server-subprocess=在子进程中启动 MCP Server",
+    )
+    args = parser.parse_args()
 
-    # 运行 MCP Server
-    app.run()
+    if args.mode == "cli":
+        run_cli_demo()
+    elif args.mode == "server-subprocess":
+        run_server_subprocess()
+    else:
+        # 以 Rich 面板方式展示 MCP Server 配置信息和工具列表
+        render_server_overview()
+
+        # 运行 MCP Server（阻塞当前进程，等待 MCP 客户端连接）
+        app.run()

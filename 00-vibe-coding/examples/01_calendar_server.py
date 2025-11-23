@@ -128,11 +128,4 @@ def search_events(keyword: str) -> list[dict]:
 
 # 运行服务器
 if __name__ == "__main__":
-    print("Calendar MCP Server 启动中...")
-    print("可用工具：")
-    print("  - add_event: 添加日程")
-    print("  - list_events: 列出所有日程")
-    print("  - delete_event: 删除日程")
-    print("  - update_event: 更新日程")
-    print("  - search_events: 搜索日程")
     app.run()

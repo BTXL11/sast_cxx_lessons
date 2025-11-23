@@ -1,0 +1,3 @@
+D:/Project/sast_cxx_lessons/build_root/CMakeFiles/helloworld.dir
+D:/Project/sast_cxx_lessons/build_root/CMakeFiles/ALL_BUILD.dir
+D:/Project/sast_cxx_lessons/build_root/CMakeFiles/ZERO_CHECK.dir
