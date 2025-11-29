@@ -1,0 +1,129 @@
+site_name: SAST C++ 教程
+site_description: 西安交通大学软件协会 C++ 教学课程
+site_author: SAST
+site_url: https://astroair.github.io/sast_cxx_lessons/
+
+repo_name: AstroAir/sast_cxx_lessons
+repo_url: https://github.com/AstroAir/sast_cxx_lessons
+
+copyright: Copyright &copy; 2024-2025 SAST
+
+theme:
+  name: material
+  language: zh
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: 切换至深色模式
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: 切换至浅色模式
+  font:
+    text: Noto Sans SC
+    code: JetBrains Mono
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search:
+      lang:
+        - zh
+        - en
+
+# 验证配置
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/AstroAir/sast_cxx_lessons
+  generator: false
+
+extra_javascript:
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+  - 首页: index.md
+  - 快速开始: getting-started.md
+  - C++ 基础教程:
+      - 概述: lessons/01-introduction/index.md
+      - 编译原理: lessons/01-introduction/compile.md
+      - 终端使用: lessons/01-introduction/terminal.md
+  - 构建系统:
+      - 概述: lessons/02-build-system/index.md
+      - CMake 基础: lessons/02-build-system/cmake.md
+      - CMake 进阶教程: lessons/02-build-system/cmake-tutorial.md
+  - Vibe Coding:
+      - 概述: lessons/00-vibe-coding/index.md
+      - AI Agent 与 MCP: lessons/00-vibe-coding/mcp-starter.md
+      - AI 平台指南: lessons/00-vibe-coding/api-platform.md
+      - 编程工具:
+          - 工具概览: lessons/00-vibe-coding/coding/index.md
+          - GitHub Copilot: lessons/00-vibe-coding/coding/github-copilot.md
+          - Cursor: lessons/00-vibe-coding/coding/cursor.md
+          - Claude: lessons/00-vibe-coding/coding/claude.md
+          - Windsurf: lessons/00-vibe-coding/coding/windsurf.md
+      - 博客文章:
+          - Prompt 工程最佳实践: lessons/00-vibe-coding/blog/best-practices-for-prompt-engineering-zh.md
+          - 如何创建 Skills: lessons/00-vibe-coding/blog/how-to-create-skills-key-steps-limitations-and-examples-zh.md
+          - MCP 应用: lessons/00-vibe-coding/blog/mcp-apps.md
+  - 贡献指南: contributing.md

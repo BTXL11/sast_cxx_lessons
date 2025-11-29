@@ -45,3 +45,22 @@
 
 # Cmake build files
 build/
+build_root/
+
+# MkDocs build output
+site/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# LLM docs (generated)
+llmdoc/

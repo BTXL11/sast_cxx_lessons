@@ -1,7 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"D:/Project/sast_cxx_lessons/build_root/cmake_install.cmake"
-	],
-	"Parallel" : false
-}

@@ -1,7 +1,7 @@
 [project]
 name = "sast-cxx-lessons"
 version = "0.1.0"
-description = "Add your description here"
+description = "西安交通大学软件协会 C++ 教学课程"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -11,3 +11,14 @@ dependencies = [
     "langgraph",
     "rich",
 ]
+
+[project.optional-dependencies]
+docs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "pymdown-extensions>=10.7",
+]
+
+[project.scripts]
+docs-serve = "mkdocs:serve"
+docs-build = "mkdocs:build"
